@@ -1,7 +1,6 @@
 //dot env require
 require("dotenv").config();
 
-const { request } = require("express");
 //requiring the Express
 const express = require("express");
 
@@ -16,4 +15,4 @@ app.get("/", (req, res) => {
 });
 
 //Create a Port to Listen
-app.listen(PORT, () => `Listing on the Port ${PORT}`);
+app.listen(PORT, () => console.log(`Listing on the Port ${PORT}`));
