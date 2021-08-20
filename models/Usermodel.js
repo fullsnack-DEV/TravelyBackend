@@ -35,6 +35,13 @@ UserScheme.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+//Creating the Method to check the Matched Password
+
+UserScheme.methods.matchpassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+  //this.password refers to the password of the user we call the Matchpassword Method
+};
+
 const User = mongoose.model("User", UserScheme);
 
 //on this User we have a create Method in which we can pass the Model and It will create the USerSchema as Defines

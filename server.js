@@ -10,14 +10,14 @@ const connectdb = require("./config/databse");
 //requiring the Express
 const express = require("express");
 
-connectdb();
-
-//
-
 //calling express
 const app = express();
 
+connectdb();
+
+//To get Access to the JSOn data via a Req
 app.use(express.json());
+//Auth Route
 app.use("/api/auth", require("./Routes/AuthRoutes"));
 
 const PORT = process.env.PORT || 5000;
