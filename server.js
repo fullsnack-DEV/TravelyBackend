@@ -1,10 +1,18 @@
 //dot env require
-require("dotenv").config();
+const dotenv = require("dotenv");
+
+//path for dot env
+dotenv.config({ path: "./config.env" });
 
 const AuthRouter = require("./Routes/AuthRoutes");
 
+const connectdb = require("./config/databse");
 //requiring the Express
 const express = require("express");
+
+connectdb();
+
+//
 
 //calling express
 const app = express();
