@@ -12,10 +12,7 @@ exports.register = async (req, res, next) => {
       password,
     });
 
-    res.status(201).json({
-      success: true,
-      user: user,
-    });
+    sendtoken(user, 201, res);
   } catch (error) {
     next(error);
   }
@@ -49,10 +46,7 @@ exports.login = async (req, res, next) => {
 
     //if everything is fine then respond witht the token
 
-    res.status(200).json({
-      success: true,
-      message: "Welcome",
-    });
+    sendtoken(user, 200, res);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -67,4 +61,13 @@ exports.forgotpassword = (req, res, next) => {
 
 exports.resetpassword = (req, res, next) => {
   res.send("resetpassword Route");
+};
+
+//This will give the Signed token
+const sendtoken = (user, statuscode, res) => {
+  const token = user.getsignedtoken();
+  res.status(statuscode).json({
+    success: true,
+    token: token,
+  });
 };
