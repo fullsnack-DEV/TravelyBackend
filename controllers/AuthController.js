@@ -71,3 +71,5 @@ const sendtoken = (user, statuscode, res) => {
     token: token,
   });
 };
+
+//Building  Protected Routes
