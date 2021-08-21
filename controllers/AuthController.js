@@ -1,4 +1,5 @@
 const User = require("../models/Usermodel");
+const ErrorResponse = require("../utils/Errorresponse");
 
 exports.register = async (req, res, next) => {
   //Destructuring
@@ -16,10 +17,7 @@ exports.register = async (req, res, next) => {
       user: user,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+    next(error);
   }
 };
 
@@ -31,9 +29,7 @@ exports.login = async (req, res, next) => {
   //Check if email and password is present or not
 
   if (!email || !password) {
-    res
-      .status(400)
-      .json({ success: false, error: "Please provid the email and password" });
+    return next(new ErrorResponse("Please Provide an Email and Password", 400));
   }
 
   try {
@@ -41,20 +37,14 @@ exports.login = async (req, res, next) => {
     const user = await User.findOne({ email }).select("+password"); //Selecting the Password of the user
     //Check if user is present or not
     if (!user) {
-      res.status(404).json({
-        success: false,
-        error: "Invalid Credential",
-      });
+      return next(new ErrorResponse("Invalid Credential", 404));
     }
 
     //check if password matches or not
     const ismatched = await user.matchpassword(password);
 
     if (!ismatched) {
-      res.status(404).json({
-        success: false,
-        error: "Invalid email and password",
-      });
+      return next(new ErrorResponse("Invalid Email amd Password", 404));
     }
 
     //if everything is fine then respond witht the token

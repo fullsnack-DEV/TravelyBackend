@@ -6,6 +6,8 @@ dotenv.config({ path: "./config.env" });
 
 const AuthRouter = require("./Routes/AuthRoutes");
 
+const ErrorHandler = require("./middlewares/error");
+
 const connectdb = require("./config/databse");
 //requiring the Express
 const express = require("express");
@@ -19,6 +21,8 @@ connectdb();
 app.use(express.json());
 //Auth Route
 app.use("/api/auth", require("./Routes/AuthRoutes"));
+
+app.use(ErrorHandler);
 
 const PORT = process.env.PORT || 5000;
 //Create a Port to Listen
