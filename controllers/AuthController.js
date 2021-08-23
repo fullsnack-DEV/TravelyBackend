@@ -1,5 +1,7 @@
 const User = require("../models/Usermodel");
 const ErrorResponse = require("../utils/Errorresponse");
+const Sendemail = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 exports.register = async (req, res, next) => {
   //Destructuring
@@ -55,12 +57,81 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.forgotpassword = (req, res, next) => {
-  res.send("forgot password Route");
+exports.forgotpassword = async (req, res, next) => {
+  //Check the Email of the usr and compare
+
+  try {
+    //find the user
+
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return next(new ErrorResponse("Invalid Could not be sent", 404));
+    }
+
+    //resetting the token
+    const resettoken = user.getresettoken(); //saving token to user schema
+    //save to Database
+    await user.save();
+
+    const reseturl = `http://localhost:3000/passwordreset/${resettoken}`;
+    const message = `<h1>You have requested a Password</h1>
+                    <a href=${reseturl} clicktracking=off> ${reseturl} </a>`;
+
+    try {
+      //Sending Email
+
+      await Sendemail({
+        email: user.email,
+        subject: "Password Reset",
+        message,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: "Email Send",
+      });
+    } catch (error) {
+      user.resetpasswordtoken = undefined;
+      user.resetpasswordExpire = undefined;
+
+      await user.save();
+
+      return next(new ErrorResponse("Email Could not be Send", 500));
+    }
+  } catch (error) {
+    next(error);
+  }
 };
 
-exports.resetpassword = (req, res, next) => {
-  res.send("resetpassword Route");
+exports.resetpassword = async (req, res, next) => {
+  const resetpasswordtoken = crypto
+    .createHash("sha256")
+    .update(req.params.resettoken)
+    .digest("hex");
+
+  try {
+    const user = await User.findOne({
+      resetpasswordtoken,
+      resetpasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(new ErrorResponse("Invalid Reset Token", 500));
+    }
+
+    user.password = req.body.password;
+    user.resetpasswordtoken = undefined;
+    user.resetpasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 //This will give the Signed token
