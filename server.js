@@ -10,6 +10,7 @@ const ErrorHandler = require("./middlewares/error");
 
 const connectdb = require("./config/databse");
 //requiring the Express
+
 const express = require("express");
 
 //calling express
@@ -21,6 +22,7 @@ connectdb();
 app.use(express.json());
 //Auth Route
 app.use("/api/auth", require("./Routes/AuthRoutes"));
+app.use("/api/private", require("./Routes/private"));
 
 app.use(ErrorHandler);
 
